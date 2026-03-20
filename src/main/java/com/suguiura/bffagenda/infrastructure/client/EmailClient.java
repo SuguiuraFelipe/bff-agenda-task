@@ -10,5 +10,6 @@ import java.util.List;
 @FeignClient(name = "notification", url = "${notification.url}")
 public interface EmailClient {
 
+    @PostMapping
     void sendEmail(@RequestBody TaskDTOResponse dto);
 }
