@@ -1,0 +1,57 @@
+services:
+  agenda-task:
+    build: ../agenda-task
+    container_name: agenda-task
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/db_agenda
+    depends_on:
+      - mongo
+  bff-agenda:
+    build: .
+    container_name: bff-agenda
+    ports:
+      - "8083:8083"
+    environment:
+      - USER_URL=http://user:8080/user
+      - AGENDA_TASK_URL=http://agenda-task:8081/tasks
+      - NOTIFICATION_URL=notification:8082/email
+  user:
+    build: ../user
+    container_name: user
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/db_user
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+    depends_on:
+      - postgres
+  notification:
+    build: ../notification
+    container_name: notification
+    ports:
+      - "8082:8082"
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: no
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: db_user
+    ports:
+      - "5434:5432"
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    restart: no
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: db_agenda
+
+networks:
+  default:
+    driver: bridge
